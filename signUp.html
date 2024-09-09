@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="nav.css" />
+    <style>
+     /* General Reset */
+* {
+  margin: 0%;
+  padding: 0%;
+  box-sizing: border-box;
+}
+
+/* Form Styles */
+form {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Input Styles */
+.inputs {
+  margin-top: 10px;
+  width: 300px;
+  padding: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); /* Corrected shadow */
+  border: 1px solid #ccc; /* Added color to border */
+  border-radius: 4px;
+  background-color: white;
+  color: black;
+  font-weight: bolder;
+}
+
+/* Span Styles */
+span {
+  margin-top: 10px;
+}
+
+/* Button Styles */
+.btn {
+  margin-top: 10px;
+  padding: 10px 20px;
+  background-color: white;
+  color: black;
+  border: 1px solid black;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease; /* Smooth transition */
+}
+
+.btn:hover {
+  background-color: rgb(184, 175, 175);
+}
+
+/* Main Section Styles */
+.main {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 534px;
+  background-image: linear-gradient(to bottom, #fa0657f5, #0c0c0c);
+}
+
+/* Div Styles */
+.div {
+  background-color: antiquewhite;
+  width: 40%;
+  height: 300px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+/* Media Queries for Responsiveness */
+
+/* Tablets and smaller screens */
+@media (max-width: 768px) {
+  .inputs {
+    width: 80%; /* Adjust width for smaller screens */
+    margin: 10px auto; /* Center the inputs */
+  }
+
+  .div {
+    width: 80%; /* Adjust width for smaller screens */
+    height: auto; /* Allow height to adjust based on content */
+  }
+
+  .main {
+    height: auto; /* Allow height to adjust based on content */
+    padding: 20px; /* Add padding for smaller screens */
+  }
+
+  .btn {
+    width: 100%; /* Full width for buttons on smaller screens */
+    padding: 10px; /* Increase padding for better touch targets */
+  }
+}
+
+/* Mobile devices */
+@media (max-width: 480px) {
+  .inputs {
+    width: 100%; /* Full width for very small screens */
+    font-size: 14px; /* Adjust font size for small screens */
+  }
+
+  .div {
+    width: 100%; /* Full width for very small screens */
+    height: auto; /* Allow height to adjust based on content */
+  }
+
+  .main {
+    height: auto; /* Allow height to adjust based on content */
+    padding: 10px; /* Add padding for very small screens */
+  }
+
+  .btn {
+    width: 100%; /* Full width for buttons on very small screens */
+    padding: 12px; /* Increase padding for better touch targets */
+    font-size: 16px; /* Adjust font size for small screens */
+  }
+}
+
+    </style>
+  </head>
+  <body>
+    <nav id="nav"></nav>
+    <div class="main">
+      <div class="div">
+        <form action="">
+          <input class="inputs" id="name" placeholder="Name" type="text" />
+          <input class="inputs" id="email" placeholder="Email" type="email" />
+          <input
+            class="inputs"
+            id="password"
+            placeholder="Password"
+            type="password"
+          />
+          <input class="btn" type="submit" value="SignUp" />
+          <span
+            >Already have an account? <a href="signIn.html">Sign In</a></span
+          >
+        </form>
+      </div>
+    </div>
+  </body>
+  <script type="module">
+    import nav from "./components/nav.js";
+    let navbar = document.querySelector("#nav");
+    navbar.innerHTML = nav();
+    let form = document.querySelector("form");
+    let userData = JSON.parse(localStorage.getItem("userData")) || [];
+    form.addEventListener("submit", function () {
+      event.preventDefault();
+      if (
+        form.name.value === "" ||
+        form.email.value === "" ||
+        form.password.value === ""
+      ) {
+        alert("Please fill the form");
+      } else {
+        let data = {
+          name: form.name.value,
+          email: form.email.value,
+          password: form.password.value,
+        };
+        if (checkEmail(data.email) === true) {
+          userData.push(data);
+          localStorage.setItem("userData", JSON.stringify(userData));
+          alert("SignUp is successful");
+          window.location.href = "signIn.html";
+        } else {
+          alert("email is alreday registered");
+        }
+      }
+    });
+
+    function checkEmail(email) {
+      let filtered = userData.filter((el) => {
+        return el.email === email;
+      });
+      if (filtered.length > 0) {
+        return false;
+      } else {
+        return true;
+      }
+    }
+  </script>
+</html>

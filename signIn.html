@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="nav.css" />
+    <style>
+      * {
+        margin: 0%;
+        padding: 0%;
+        box-sizing: border-box;
+      }
+      form {
+        display: flex;
+        flex-direction: column;
+      }
+      .inputs{
+        margin-top: 10px;
+        width:300px; 
+        padding: 5px;
+        box-shadow: 30px;
+        border: 1px solid;
+        border-radius: 4px;
+        background-color: white;
+        color: black;
+        font-weight: bolder;
+      }
+      span{
+        margin-top: 10px;
+      }
+      .btn:hover {
+        cursor: pointer;
+        background-color: rgb(184, 175, 175);
+      }
+      .main {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 534px;
+        background-image: linear-gradient(to bottom, #ec1022f5, #080808);
+      }
+
+      .div {
+        background-color: antiquewhite;
+        width: 40%;
+        height: 300px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        box-shadow: 30px 30px 10px rgba(0, 0, 0, 0.5);
+      }
+      .btn{
+        margin-top: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <nav id="nav"></nav>
+    <div class="main">
+      <div class="div">
+        <form action="">
+          <input class="inputs" id="email" placeholder="Email" type="email" />
+          <input class="inputs" id="password" placeholder="Password" type="password" />
+          <input   class="btn" type="submit" value="SignIn" />
+          <span>Didn't have account <a href="signUp.html">Sign Up</a></span>
+        </form>
+      </div>
+    </div>
+  </body>
+  <script type="module">
+    import nav from "./components/nav.js";
+    let navbar = document.querySelector("#nav");
+    navbar.innerHTML = nav();
+    let userData = JSON.parse(localStorage.getItem("userData"));
+    let form = document.querySelector("form");
+    form.addEventListener("submit", function () {
+      event.preventDefault();
+      let data = {
+        email: form.email.value,
+        password: form.password.value,
+      };
+      if (checkUserSignIn(data.email, data.password) === true) {
+        localStorage.setItem("signin", JSON.stringify(data));
+        alert("Login Successful");
+        window.location.href = "index.html";
+      } else {
+        alert("Wrong Credentials");
+      }
+    });
+    function checkUserSignIn(email, pass) {
+      let filtered = userData.filter((el) => {
+        return el.email === email && el.password === pass;
+      });
+      if (filtered.length > 0) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+  </script>
+</html>

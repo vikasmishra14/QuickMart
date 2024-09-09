@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Product Description</title>
+    <link rel="stylesheet" href="nav.css">
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      #container {
+        display: flex;
+        flex-direction: column;
+        /* align-items: center; */
+        padding: 20px;
+      }
+
+      .product {
+        display: flex;
+        flex-direction: column;
+        max-width: 800px;
+        /* border: 1px solid #ddd; */
+        padding: 20px;
+        /* border-radius: 10px; */
+        /* box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); */
+      }
+
+      .main-image {
+        width: 400px;
+        height: 400px;
+        margin-bottom: 20px;
+      }
+
+      .thumbnails {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+
+      .thumbnails img {
+        width: 80px;
+        height: 80px;
+        cursor: pointer;
+      }
+
+      .details {
+        margin-top: 20px;
+      }
+
+      .details p {
+        margin-bottom: 10px;
+      } 
+      .btn-1{
+        width: 20%;
+      }
+    </style>
+  </head>
+  <body>
+    <nav id="nav"></nav>
+    <div id="container"></div>
+  </body>
+  <script type="module">
+    import nav from "./components/nav.js";
+    let navbar = document.querySelector("#nav");
+    navbar.innerHTML = nav();
+
+    let totalPrice = 0;
+    var description = JSON.parse(localStorage.getItem("description"));
+    let currUser = JSON.parse(localStorage.getItem("signin"));
+    let cartLS = JSON.parse(localStorage.getItem("cartData")) || [];
+    let productsContainer = document.querySelector("#container");
+
+    function displayDescription(data) {
+      totalPrice = 0;
+      productsContainer.innerHTML = "";
+
+      data.forEach((el) => {
+        let product = document.createElement("div");
+        product.classList.add("product");
+
+        // Main image display
+        let mainImage = document.createElement("img");
+        mainImage.classList.add("main-image");
+        mainImage.src = el.images[0];
+
+        // Thumbnails
+        let thumbnails = document.createElement("div");
+        thumbnails.classList.add("thumbnails");
+
+        el.images.forEach((imageSrc) => {
+          let thumbnail = document.createElement("img");
+          thumbnail.src = imageSrc;
+          thumbnail.addEventListener("click", function () {
+            mainImage.src = imageSrc;
+          });
+          thumbnails.appendChild(thumbnail);
+        });
+
+        let name = document.createElement("h4");
+        name.innerText = el.title;
+
+        let price = document.createElement("p");
+        price.innerText = `Price: $${el.price}`;
+
+        let availability = document.createElement("p");
+        availability.innerText = `Availability: ${el.availabilityStatus}`;
+
+        let description = document.createElement("p");
+        description.innerText = el.description;
+
+        let dimensions = document.createElement("p");
+        dimensions.innerText = `Dimensions (WxHxD): ${el.dimensions.width} x ${el.dimensions.height} x ${el.dimensions.depth}`;
+
+        let shippingInfo = document.createElement("p");
+        shippingInfo.innerText = `Shipping: ${el.shippingInformation}`;
+
+        let addToCart = document.createElement("button");
+        addToCart.innerText = "Add To Cart";
+        addToCart.classList.add('btn-1')
+        addToCart.addEventListener("click", function () {
+          if (currUser) {
+            if (checkUserCart(currUser.email, el.id)) {
+              alert("Product is already in cart");
+            } else {
+              if (addToCartFn(el.id, currUser.email)) {
+                totalPrice += el.price;
+                el.email = currUser.email;
+                cartLS.push(el);
+                localStorage.setItem("cartData", JSON.stringify(cartLS));
+                alert("Product added to cart successfully");
+              } else {
+                alert("Product could not be added to the cart");
+              }
+            }
+          } else {
+            alert("Log in to add products to cart");
+          }
+        });
+
+        let details = document.createElement("div");
+        details.classList.add("details");
+        details.append(name, price, availability, description, dimensions, shippingInfo);
+
+        product.append(mainImage, thumbnails, details, addToCart);
+        productsContainer.append(product);
+      });
+    }
+
+    displayDescription(description);
+
+    function addToCartFn(id, email) {
+      for (let i = 0; i < cartLS.length; i++) {
+        if (cartLS[i].id === id && cartLS[i].email === email) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    function checkUserCart(email, id) {
+      return cartLS.some((item) => item.email === email && item.id === id);
+    }
+
+    window.onload = function () {
+      localStorage.removeItem("description");
+    };
+  </script>
+</html>

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="nav.css" />
+    <style>
+      * {
+        margin: 0%;
+        padding: 0%;
+        box-sizing: border-box;
+      }
+      #products {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        grid-template-rows: auto;
+        gap: 10px 20px;
+      }
+      #products > div {
+        border: 1px solid;
+      }
+      .priceContainer {
+        margin: 10px;
+        display: flex;
+        justify-content: space-between;
+      }
+    </style>
+  </head>
+  <body>
+    <nav id="nav"></nav>
+    <div class="priceContainer">
+      <h3 id="price"></h3>
+      <button id="proceedBtn"></button>
+    </div>
+    <div id="products"></div>
+  </body>
+  <script type="module">
+    import nav from "./components/nav.js";
+    let navbar = document.querySelector("#nav");
+    navbar.innerHTML = nav();
+    let totalPrice = 0;
+    var userCart;
+    let currUser = JSON.parse(localStorage.getItem("signin"));
+    let productsContainer = document.querySelector("#products");
+    let priceatg = document.querySelector("#price");
+    let cartLS = JSON.parse(localStorage.getItem("cartData")) || [];
+    let proceedTopay = document.querySelector("#proceedBtn");
+
+    function displayCart(cartLS) {
+      productsContainer.innerHTML = "";
+      proceedTopay.innerText = "Proceed To Pay";
+      proceedTopay.addEventListener("click", function () {
+        window.location.href = "Payment.html";
+      });
+      cartLS.forEach((el) => {
+        totalPrice += el.price;
+        let product = document.createElement("div");
+        let img = document.createElement("img");
+        img.src = el.thumbnail;
+        let name = document.createElement("h4");
+        name.innerText = el.title;
+        let price = document.createElement("p");
+        price.innerText = el.price;
+        let deleteCart = document.createElement("button");
+        deleteCart.innerText = "Delete";
+        deleteCart.addEventListener("click", function () {
+          deleteCartfn(el.id);
+        });
+
+        product.append(img, name, price, deleteCart);
+        productsContainer.append(product);
+        priceatg.innerText = `Total Price : ${totalPrice.toFixed(2)}`;
+      });
+    }
+
+    function checkCart(data) {
+      // console.log(data);
+      userCart = data.filter((cart) => cart.email === currUser.email);
+      if (userCart.length === 0) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+
+    if (currUser) {
+      if (checkUser(currUser.email) || checkCart(cartLS)) {
+        userCart = cartLS.filter((cart) => cart.email === currUser.email);
+        if (userCart.length > 0) {
+          displayCart(userCart);
+        } else {
+          alert("Empty, add products to cart");
+          window.location.href = "products.html";
+        }
+      } else {
+        alert("Something went wrong try later");
+        window.location.href = "signIn.html";
+      }
+    } else {
+      alert("Log in first");
+      window.location.href = "signIn.html";
+    }
+
+    function checkUser(email) {
+      return cartLS.some((item) => item.email === email);
+    }
+
+    // console.log(userCart);
+    function deleteCartfn(id) {
+      let deleteCart = userCart.filter((el) => {
+        totalPrice = totalPrice - el.price;
+        return el.id != id;
+      });
+      if (deleteCart.length >= 0) {
+        console.log(deleteCart);
+        cartLS = deleteCart;
+        userCart = deleteCart;
+        localStorage.setItem("cartData", JSON.stringify(cartLS));
+        displayCart(userCart);
+        priceatg.innerText = `Total Price : ${totalPrice.toFixed(2)}`;
+        totalPrice == 0
+          ? (proceedTopay.disabled = true)
+          : (proceedTopay.disabled = false);
+        priceatg.innerText = `Total Price : ${totalPrice.toFixed(2)}`;
+      } else {
+        window.location.href = "products.html";
+      }
+    }
+  </script>
+</html>

@@ -1,0 +1,111 @@
+#nav {
+  background-color: antiquewhite;
+  padding: 20px 0;
+  position: relative;
+}
+
+.nav-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+#nav ul {
+  display: flex;
+  align-items: center;
+  list-style: none;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+#nav ul li {
+  margin: 0 15px;
+  font-size: 1.5rem;
+}
+
+a {
+  text-decoration: none;
+  color: black; /* Ensure link color is visible */
+}
+
+.btn, .search-bar {
+  padding: 5px;
+  background-color: white;
+  color: black;
+  border: 1px solid black;
+  border-radius: 6px;
+  margin: 5px;
+}
+
+.btn:hover {
+  background-color: rgb(181, 174, 174);
+  cursor: pointer;
+}
+
+/* Hamburger Menu Styles */
+.hamburger {
+  display: none;
+  flex-direction: column;
+  cursor: pointer;
+  margin-right: 20px;
+}
+
+.hamburger span {
+  height: 4px;
+  width: 30px;
+  background-color: black;
+  margin: 5px 0;
+  border-radius: 5px;
+  transition: 0.3s ease-in-out;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+}
+
+.nav-links.active {
+  display: flex !important;
+  flex-direction: column;
+  position: absolute;
+  top: 70px;
+  left: 0;
+  width: 100%;
+  background-color: antiquewhite;
+  padding: 20px 0;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.nav-links.active li {
+  margin: 10px 0;
+  font-size: 1.2rem;
+}
+
+/* Media Query for Tablets (768px and below) */
+@media (max-width: 768px) {
+  #nav ul {
+    display: none;
+  }
+
+  .hamburger {
+    display: flex;
+  }
+}
+
+/* Media Query for Mobile Devices (480px and below) */
+@media (max-width: 480px) {
+  .nav-links.active li {
+    font-size: 1rem;
+    margin: 8px 0;
+  }
+
+  .btn, .search-bar {
+    width: 100%;
+    padding: 8px;
+  }
+
+  #nav {
+    padding: 10px 0;
+  }
+}

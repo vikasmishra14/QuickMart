@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="nav.css" />
+    <style>
+      *{
+        margin: 0%;
+        padding: 0%;
+        box-sizing: border-box;
+      }
+      .container {
+        display: flex;
+        gap: 80px;
+        margin-top: 20px;
+        justify-content: center;
+      }
+      form {
+        margin-top: 20px;
+        width: 20%;
+        display: flex;
+        justify-content: center;
+        background-color: aliceblue;
+        padding: 40px 30px;
+        box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+      }
+      .details {
+        display: grid;
+        grid-template-columns: repeat(1, 1fr);
+        grid-template-rows: auto;
+        gap: 10px;
+        padding: 20px 30px;
+      }
+      .inputs {
+        padding: 10px 40px;
+      }
+      .displayCart {
+        width: 60%;
+        /* border: 2px solid red; */
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        grid-template-rows: auto;
+        gap: 10px;
+      }
+      .displayCart > div {
+        border: 1px solid rgb(15, 17, 15);
+        width: 80%;
+        height: 300px;
+      }
+      .displayCart > div > img {
+        width: 100%; 
+      }
+      .card {
+        display: flex;
+      }
+    </style>
+  </head>
+  <body>
+    <nav id="nav"></nav>
+    <h3 id="price"></h3>
+    <div class="container">
+      <form action="">
+        <div class="details">
+          <select name="country" id="country">
+            <option value="india">India</option>
+            <option value="Other">Other</option>
+          </select>
+          <input type="email" class="inputs"  id="email" />
+
+          <input type="text" id="name" class="inputs" placeholder="First Name" />
+          <div class="card">
+            <input type="text" id="cardNum" class="inputs"  placeholder="Card Number" />
+            <button id="card">Add</button>
+          </div>
+          <input type="number" class="inputs"  id="mobile" placeholder="Mobile Number" />
+          <textarea
+            name="address"
+            id="address"
+            placeholder="Address"
+          ></textarea>
+          <input id="buy" class="inputs"  type="submit" value="Buy" />
+        </div>
+      </form>
+      <div class="displayCart"></div>
+    </div>
+  </body>
+  <script type="module">
+    import nav from "./components/nav.js";
+    let navbar = document.querySelector("#nav");
+    navbar.innerHTML = nav();
+    let cartItem = JSON.parse(localStorage.getItem("cartData"));
+    
+    let currUser = JSON.parse(localStorage.getItem("signin"));
+    let totalPrice = 0;
+    let userCart;
+    let priceatg = document.querySelector("#price");
+
+    const displayUi = (cart) => {
+      let priceatg = document.createElement("h3");
+      let container = document.querySelector(".displayCart");
+      container.innerHTML = "";
+      cart.forEach((el) => {
+        let div = document.createElement("div");
+        totalPrice += el.price;
+        let product = document.createElement("div");
+        let img = document.createElement("img");
+        img.src = el.thumbnail;
+        let name = document.createElement("h4");
+        name.innerText = el.title;
+        let price = document.createElement("p");
+        price.innerText = el.price;
+        let remove = document.createElement("button");
+        remove.innerText = "Remove";
+        remove.addEventListener("click", function () {
+          deleteCartfn(el.id);
+        });
+        div.append(img, name, price, remove);
+        priceatg.innerText = `Total Price : ${totalPrice.toFixed(2)}`;
+        container.append(div);
+      });
+      container.append(priceatg);
+    }; 
+    console.log(currUser);
+    function checkCart(data) {
+      // console.log(data);
+      userCart = data.filter((cart) => cart.email === currUser.email);
+      if (userCart.length === 0) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+
+    if (currUser) {
+      if (checkUser(currUser.email) || checkCart(cartItem)) {
+        userCart = cartItem.filter((cart) => cart.email === currUser.email);
+        if (userCart.length > 0) {
+          displayUi(userCart);
+        } else {
+          alert("Empty, add products to cart");
+          window.location.href = "products.html";
+        }
+      } else {
+        alert("Something went wrong try later");
+        window.location.href = "signIn.html";
+      }
+    } else {
+      alert("Log in first");
+      window.location.href = "signIn.html";
+    }
+
+    function checkUser(email) {
+      return cartItem.some((item) => item.email === email);
+    }
+
+    // console.log(userCart);
+    function deleteCartfn(id) {
+      let deleteCart = userCart.filter((el) => {
+        totalPrice = totalPrice - el.price;
+        return el.id != id;
+      });
+      if (deleteCart.length >= 0) {
+        console.log(deleteCart);
+        cartItem = deleteCart;
+        userCart = deleteCart;
+        localStorage.setItem("cartData", JSON.stringify(cartItem));
+        displayUi(userCart);
+        priceatg.innerText = `Total Price : ${totalPrice.toFixed(2)}`;
+         if(totalPrice == 0 ){
+          alert('Nothing to Buy')
+          window.location.href='products.html'
+         }
+        priceatg.innerText = `Total Price : ${totalPrice.toFixed(2)}`;
+      } else {
+        window.location.href = "products.html";
+      }
+    }
+
+    // let country=document.querySelector('.country').value;
+    let email = document.querySelector("#email");
+    let card = document.querySelector("#card");
+    let name = document.querySelector("#name");
+    let cardNum = document.querySelector("#cardNum");
+    let form = document.querySelector("form");
+    let address = document.querySelector("#address");
+    let mobile = document.querySelector("#mobile"); 
+    let userData = JSON.parse(localStorage.getItem("userData"));
+    let addCard = document.querySelector("#card");
+    addCard.addEventListener("click", function () {
+      // window.location.href='Card.html'
+    });
+    // console.log(signInUser)
+    function user(data) {
+      let filtered;
+      if (data.length > 0) {
+        filtered = data.filter((user) => {
+          return user.email === currUser.email;
+        });
+        email.value = filtered[0].email;
+        name.value = filtered[0].name;
+        email.disabled = true;
+      } else {
+        alert("log in");
+      }
+    }
+    user(userData);
+
+    form.addEventListener("submit", formSubmit);
+    function formSubmit(e) {
+      e.preventDefault();
+      if (
+        name.value === "" ||
+        cardNum.value === "" ||
+        mobile.value === "" ||
+        address.value === ""
+      ) {
+        alert("fill the form");
+      } else {
+        name.value = cardNum.value = mobile.value = address.value = "";
+        alert("Purchase is successful");
+        let filter = cartItem.filter((el) => {
+          return el.email != currUser.email;
+        });
+        cartItem = filter;
+        localStorage.setItem("cartData", JSON.stringify(cartItem));
+        window.location.href = "Products.html";
+      }
+    }
+  </script>
+</html>

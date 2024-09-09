@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="nav.css" />
+    <link rel="stylesheet" href="footer.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+
+    <style>
+      * {
+        margin: 0%;
+        padding: 0%;
+        box-sizing: border-box;
+      }
+
+      /* Product Grid */
+      #products {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr); /* Default for larger screens */
+        grid-template-rows: auto;
+        gap: 10px 20px;
+        margin-top: 0%;
+      }
+
+      #poster img {
+        width: 100%;
+        height: 400px;
+      }
+
+      /* Buttons */
+      .btn,
+      .sort {
+        padding: 5px;
+        background-color: white;
+        color: black;
+        border: 1px solid black;
+        border-radius: 6px;
+        margin: 5px;
+      }
+
+      .btn:hover,
+      .sort:hover {
+        background-color: rgb(181, 174, 174);
+        cursor: pointer;
+      }
+
+      /* Media Query for Tablets (768px and below) */
+      @media (max-width: 768px) {
+        #products {
+          grid-template-columns: repeat(2, 1fr); /* 2 columns for tablets */
+          gap: 15px;
+        }
+
+        #poster img {
+          height: 300px; /* Reduce image height */
+        }
+      }
+
+      /* Media Query for Mobile Devices (480px and below) */
+      @media (max-width: 480px) {
+        #products {
+          grid-template-columns: 1fr; /* Single column for small screens */
+          gap: 10px;
+          text-align: center;
+        }
+
+        #poster img {
+          height: 200px; /* Further reduce image height for smaller screens */
+        }
+
+        .btn,
+        .sort {
+          width: 100%; /* Full-width buttons for smaller screens */
+          margin: 10px 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <nav id="nav"></nav>
+    <select class="sort" name="Sort" id="Sort">
+      <option value="All">All Products</option>
+      <option value="groceries">Groceries</option>
+      <option value="furniture">Furniture</option>
+      <option value="beauty">Beauty</option>
+    </select>
+    <div id="poster"></div>
+    <div id="products"></div>
+    <footer>
+      <div class="footer-container">
+        <div class="footer-about">
+          <h3>About Us</h3>
+          <p>
+            I am Passinated web developer , enhancing my konowledge of web
+            development currently i'm learing react.
+          </p>
+        </div>
+
+        <div class="footer-links">
+          <h3>Quick Links</h3>
+          <ul>
+            <li><a href="#">Home</a></li>
+            <li><a href="#">Services</a></li>
+            <li><a href="#">Portfolio</a></li>
+            <li><a href="#">Contact</a></li>
+            <li><a href="#">Blog</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-social">
+          <h3>Follow Us</h3>
+          <div class="social-icons">
+            <a href="#"><i class="fab fa-facebook"></i></a>
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-linkedin"></i></a>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>&copy; 2024 Vikas Mishra. All rights reserved.</p>
+      </div>
+    </footer>
+  </body>
+  <script type="module">
+    import nav from "./components/nav.js";
+    let navbar = document.querySelector("#nav");
+    navbar.innerHTML = nav();
+    let fetchedData = [];
+    fetch("https://dummyjson.com/products")
+      .then((res) => res.json())
+      .then((data) => {
+        fetchedData = data.products;
+        displayProducts(fetchedData);
+      })
+      .catch((error) => {
+        console.error("Error fetching data:", error);
+      });
+    let totalPrice = 0;
+    var description = [];
+    let productsContainer = document.querySelector("#products");
+    let currUser = JSON.parse(localStorage.getItem("signin"));
+    let cartLS = JSON.parse(localStorage.getItem("cartData")) || [];
+
+    function displayProducts(fetchedData) {
+      totalPrice = 0;
+      productsContainer.innerHTML = "";
+      fetchedData.forEach((el) => {
+        let product = document.createElement("div");
+        let img = document.createElement("img");
+        img.src = el.thumbnail;
+        img.addEventListener("click", function () {
+          description.push(el);
+          localStorage.setItem("description", JSON.stringify(description));
+          window.location.href = "description.html";
+        });
+        let name = document.createElement("h4");
+        name.innerText = el.title;
+        let price = document.createElement("p");
+        price.innerText = el.price;
+        let addToCart = document.createElement("button");
+        addToCart.innerText = "Add To Cart";
+        addToCart.classList.add("btn");
+        addToCart.addEventListener("click", function () {
+          if (currUser) {
+            if (checkUserCart(currUser.email, el.id)) {
+              alert("Product is already in cart");
+            } else {
+              if (addTocartFn(el.id, currUser.email) === true) {
+                totalPrice += el.price;
+                el.email = currUser.email;
+                cartLS.push(el);
+                console.log(cartLS);
+                localStorage.setItem("cartData", JSON.stringify(cartLS));
+                alert("Product added to cart successfully");
+              } else {
+                alert("Product could not be added to the cart");
+              }
+            }
+          } else {
+            alert("log In , To add Products Into Cart");
+          }
+        });
+        product.append(img, name, price, addToCart);
+        productsContainer.append(product);
+      });
+    }
+
+    let filter = document.querySelector("#Sort");
+    filter.addEventListener("change", function () {
+      if (filter.value === "All") {
+        displayProducts(fetchedData);
+      } else {
+        let filtered = fetchedData.filter((el) => {
+          return el.category === filter.value;
+        });
+        // console.log(filtered)
+        displayProducts(filtered);
+      }
+    });
+
+    function addTocartFn(id, email) {
+      for (let i = 0; i < cartLS.length; i++) {
+        if (cartLS[i].id === id && cartLS[i].email === email) {
+          return false;
+        }
+      }
+      return true;
+    }
+    function checkUserCart(email, id) {
+      return cartLS.some((item) => item.email === email && item.id === id);
+    }
+
+    // Debounce function to limit the number of API calls
+    function debounce(func, delay) {
+      let debounceTimer;
+      return function (...args) {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+          func.apply(this, args);
+        }, delay);
+      };
+    }
+
+    // Function to handle the search operation
+    function handleSearch() {
+      const searchBar = document.querySelector(".search-bar");
+      const searchQuery = searchBar.value.trim();
+
+      if (!searchQuery) {
+        alert("Please enter a search term!");
+      } else {
+        localStorage.setItem("searchQuery", searchQuery);
+        window.location.href = "search.html";
+      }
+    }
+    const debouncedInputSearch = debounce(handleSearch, 2000);
+    document
+      .querySelector(".search-bar")
+      .addEventListener("input", debouncedInputSearch);
+    document.querySelector(".btn").addEventListener("click", handleSearch);
+
+    document.addEventListener("DOMContentLoaded", function () {
+      const hamburger = document.getElementById("hamburger");
+      const navLinks = document.getElementById("nav-links");
+
+      if (hamburger && navLinks) {
+        hamburger.addEventListener("click", function () { 
+          navLinks.classList.toggle("active");
+        });
+      }
+    });
+  </script>
+
+  <script src="./components/slider.js"></script>
+</html>
